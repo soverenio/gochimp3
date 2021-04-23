@@ -38,16 +38,25 @@ type API struct {
 
 // New creates a API
 func New(apiKey string) *API {
-	u := url.URL{}
-	u.Scheme = "https"
-	u.Host = fmt.Sprintf(URIFormat, DatacenterRegex.FindString(apiKey))
-	u.Path = Version
-
 	return &API{
 		User:     "gochimp3",
 		Key:      apiKey,
-		endpoint: u.String(),
+		endpoint: genEndpoint(DatacenterRegex.FindString(apiKey)),
 	}
+}
+
+// SetDataCenter changes datacenter in API endpoint, for example: api.SetDataCenter("us6").
+// Required when you obtain token via OAuth2.
+func (api *API) SetDataCenter(dc string) {
+	api.endpoint = genEndpoint(dc)
+}
+
+func genEndpoint(dc string) string {
+	u := url.URL{}
+	u.Scheme = "https"
+	u.Host = fmt.Sprintf(URIFormat, dc)
+	u.Path = Version
+	return u.String()
 }
 
 // Request will make a call to the actual API.
